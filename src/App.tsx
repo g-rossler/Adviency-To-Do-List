@@ -5,7 +5,9 @@ export default function App() {
     <div className="App">
       <h1>Regalos:</h1>
       <ul>
-        <li>...</li>
+        <li>Bicicleta</li>
+        <li>Peluche</li>
+        <li>Pelota</li>
       </ul>
     </div>
   );
