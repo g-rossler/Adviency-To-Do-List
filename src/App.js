@@ -1,5 +1,6 @@
 import React from "react";
 import "./styles.css";
+import { nanoid } from "nanoid";
 
 //- Día 4: Papa noel no estuvo muy contento con la demanda de regalos, vamos a tener que agregar un botón de eliminar a cada elemento para poder borrarlos individualmente.
 
@@ -10,16 +11,18 @@ export default function App() {
   function handleSubmit(event) {
     event.preventDefault()
     setList(prevList => {
-      return [...prevList, giftInput]
-    } )
+      return [...prevList, 
+        {name: giftInput,
+        id: nanoid()
+        }]
+    })
+    setGiftInput("")
   }
 
-  function handleButtonDelete(event, index){
-    console.log(event)
-    console.log(index)
-    setList(prevList => {
-      return prevList.splice(index,1)
-    })
+  function handleButtonDelete(event, id){
+    event.preventDefault()
+    setList(prevList => prevList.filter(item => item.id !== id))
+    
   }
 
   return (
@@ -31,11 +34,11 @@ export default function App() {
       </form>
       
       <ul>
-      {list.map((item,itemIndex) => {
+      {list.map((item) => {
         return (
-          <div key={itemIndex}>
-            <li key={itemIndex}>{item}</li>
-            <button onClick={(e) => handleButtonDelete(e, itemIndex)}>X</button>
+          <div key={item.id}>
+            <li key={item.id}>{item.name}</li>
+            <button onClick={(e) => handleButtonDelete(e, item.id)}>X</button>
           </div>
           )
       })}
