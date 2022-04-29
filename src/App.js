@@ -9,86 +9,105 @@ import {
   ListItem,
   Spacer,
   Box,
+  useToast,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { nanoid } from "nanoid";
+import { DeleteIcon } from "@chakra-ui/icons";
 
-//- Día 5: La gente está muy indecisa y agrega muchos regalos y después los debe borrar de a uno!
-//Agreguemos un botón para eliminar todos los regalos a la vez!
+//- Día 6: Nuestra aplicación no se ve muy bien cuando no hay regalos,
+// agreguemos un mensaje alentando a agregar regalos cuando no haya ninguno!
 
 export default function App() {
-  const [gift, setGift] = React.useState("");
-  const [listGift, setListGift] = React.useState([]);
+  const [listGift, setListGift] = useState([]);
+  const [gift, setGift] = useState("");
+  const toast = useToast();
 
-  function handleClick(event) {
-    event.preventDefault();
-    setListGift((prevListGift) => {
-      return gift.length === 0
-        ? [...prevListGift]
-        : [
-            ...prevListGift,
-            {
-              giftItem: gift,
-              id: nanoid(),
-            },
-          ];
+  function addGift() {
+    setListGift((prevSetGift) => {
+      return [
+        ...prevSetGift,
+        {
+          text: gift,
+          id: nanoid(),
+        },
+      ];
     });
     setGift("");
+    toast({
+      title: "Present added!",
+      description: "We've added your present for you.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
   }
 
   function deleteItem(itemId) {
-    setListGift((prevListGift) => {
-      return prevListGift.filter((item) => item.id != itemId);
+    setListGift((prevSetGift) => {
+      return prevSetGift.filter((item) => item.id != itemId);
     });
-  }
-
-  function deleteList() {
-    setListGift([]);
   }
 
   return (
     <Flex
+      align="center"
+      justify="center"
       height="100vh"
-      alignItems="center"
-      justifyContent="center"
-      backgroundColor="gray.500"
+      backgroundColor="blue.300"
     >
-      <Flex direction="column" p={4} backgroundColor="blue.300" rounded={3}>
-        <Heading mb={3} textAlign="center">
-          Christmas List
+      <Flex direction="column" backgroundColor="cyan.900" p={10}>
+        <Heading fontSize='5xl' textColor="whiteAlpha.900" mb={10}>
+          Christmas Present List
         </Heading>
         <Input
-          placeholder="Type gift..."
-          _placeholder={{ color: "black" }}
+          textColor="whiteAlpha.900"
           mb={3}
+          placeholder="Type your present here"
           onChange={(e) => setGift(e.target.value)}
           value={gift}
+          fontSize='xl'
         />
-        <Button colorScheme="blue" mb={3} onClick={(e) => handleClick(e)}>
-          Add Gift
+        <Button
+          mb={3}
+          onClick={() => {
+            if (gift.length != 0) {
+              addGift();
+            } else {
+              toast({
+                title: "Error!",
+                description: "You need to type your present",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              })
+            }
+          }}
+          fontSize='xl'
+        >
+          Add Present!
         </Button>
-        <Divider mb={3} />
-        <UnorderedList direction="">
-          {listGift.map((gift) => {
-            return (
-              <ListItem key={gift.id} id={gift.id} mb={2}>
-                <Flex justifyContent='space-around'>
-                  <Text color="white">
-                    {gift.giftItem}
-                    <Button
-                      ml={3}
-                      color="gray"
-                      onClick={() => deleteItem(gift.id)}
-                    >
-                      X
+        <Divider mb={5} />
+        {listGift.length === 0 ? (
+          <Text fontSize='2xl' textColor="red.500" textAlign='center'>The list is empty, add a present!</Text>
+        ) : (
+          <UnorderedList>
+            {listGift.map((gift) => {
+              return (
+                <ListItem p={1} m={1}>
+                  <Flex justify="space-between" align="center">
+                    <Text fontSize='xl' ml={2} textColor="whiteAlpha.900">
+                      {gift.text}
+                    </Text>
+                    <Button mr={1} onClick={() => deleteItem(gift.id)}>
+                      <DeleteIcon />
                     </Button>
-                  </Text>
-                </Flex>
-              </ListItem>
-            );
-          })}
-        </UnorderedList>
-        <Button onClick={() => deleteList()}>Delete all gifts</Button>
+                  </Flex>
+                </ListItem>
+              );
+            })}
+          </UnorderedList>
+        )}
       </Flex>
     </Flex>
   );
