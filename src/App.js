@@ -8,13 +8,18 @@ import {
   UnorderedList,
   ListItem,
   useToast,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from "@chakra-ui/react";
 import React, { useState, useRef } from "react";
 import { nanoid } from "nanoid";
 
-//- Día 7: Tuvimos algunos reportes de regalos vacíos o repetidos,
-// asegurmosnos que la gente solo pueda agregar un regalo si escribió algo
-// y si ese regalo no está ya en la lista!
+// - Día 8: Cometimos un error el día anterior, la gente quiere agregar regalos repetidos
+// para regalarselos a diferentes personas, agreguemos un campo al lado del input de texto
+// para poner la cantidad de unidades del regalo que deberíamos comprar.
 
 export default function App() {
   const [gift, setGift] = useState("");
@@ -22,13 +27,8 @@ export default function App() {
   const toast = useToast();
   const inputRef = useRef();
 
-  const checkDuplicateText = () => {
-    const duplicateText = giftList.filter((item) => item.text === gift);
-    return duplicateText.length === 0;
-  };
-
   const handleAddGiftClick = () => {
-    if (gift.length != 0 && checkDuplicateText()) {
+    if (gift.length != 0) {
       setGiftList((prevGiftList) => {
         return [
           ...prevGiftList,
@@ -55,14 +55,6 @@ export default function App() {
           duration: 3000,
           isClosable: true,
         });
-      } else {
-        toast({
-          title: "Error: Duplicate gift.",
-          description: "You already have that gift in your list.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
       }
       inputRef.current.focus();
     }
@@ -75,37 +67,65 @@ export default function App() {
   };
 
   return (
-    <Flex h="100vh" backgroundColor="#f8f4ff" align="center" justify='center'>
+    <Flex h="100vh" backgroundColor="#f8f4ff" align="center" justify="center">
       <Flex direction="column" backgroundColor="#2e2e2e" p={5}>
-        <Heading textColor='#f8f4ff' mb={7} textAlign="center">Santa List</Heading>
-        <Divider mb={3}/>
+        <Heading textColor="#f8f4ff" mb={7} textAlign="center">
+          Santa List
+        </Heading>
+        <Divider mb={3} />
         <Input
-          _placeholder={{textColor: '#f8f4ff'}}
+          _placeholder={{ textColor: "#f8f4ff" }}
           color="f8f4ff"
-          
           onChange={(e) => setGift(e.target.value)}
           placeholder="Type your gift"
           value={gift}
           ref={inputRef}
           mb={3}
+          textColor="white"
         ></Input>
-        <Button textColor='#2e2e2e' mb={3} onClick={() => handleAddGiftClick()}>Add Gift</Button>
-        <Divider mb={3}/>
+        <Button textColor="#2e2e2e" mb={3} onClick={() => handleAddGiftClick()}>
+          Add Gift
+        </Button>
+        <Divider mb={3} />
         {giftList.length === 0 ? (
-          <Text textColor='#f8f4ff' mb={3}>Your list is empty, add a gift.</Text>
+          <Text textColor="#f8f4ff" mb={3}>
+            Your list is empty, add a gift.
+          </Text>
         ) : (
           <UnorderedList>
             {giftList.map((gift) => {
               return (
-                <Flex align="center" mb={3} key={gift.id} justify="space-between">
-                  <ListItem textColor='#f8f4ff'>{gift.text}</ListItem>
-                  <Button onClick={() => handleDeleteClick(gift.id)}>X</Button>
+                <Flex
+                  align="center"
+                  mb={3}
+                  key={gift.id}
+                  justify="space-between"
+                >
+                  <ListItem textColor="#f8f4ff">{gift.text}</ListItem>
+                  <Flex justify="right">
+                    <NumberInput
+                      w="20%"
+                      color="white"
+                      _placeholder={{ textColor: "white" }}
+                      defaultValue={0}
+                      min={0}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                    <Button ml={3} onClick={() => handleDeleteClick(gift.id)}>
+                      X
+                    </Button>
+                  </Flex>
                 </Flex>
               );
             })}
           </UnorderedList>
         )}
-        <Divider mb={3}/>
+        <Divider mb={3} />
       </Flex>
     </Flex>
   );
