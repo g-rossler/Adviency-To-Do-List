@@ -13,32 +13,48 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Container,
+  HStack,
+  Image,
+  VStack,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import React, { useState, useRef } from "react";
 import { nanoid } from "nanoid";
+import imgLogo from "../src/image/heroicons-camera-basic.svg";
 
-// - Día 8: Cometimos un error el día anterior, la gente quiere agregar regalos repetidos
-// para regalarselos a diferentes personas, agreguemos un campo al lado del input de texto
-// para poner la cantidad de unidades del regalo que deberíamos comprar.
+// - Día 10: Las palabras dicen mucho pero las imágenes más!
+// Agreguemos un campo donde podamos pegar un link de imágen para cada regalo y mostremoslo en la lista.
 
 export default function App() {
-  const [gift, setGift] = useState("");
+  const [giftDetail, setGiftDetail] = useState({
+    text: "",
+    quantity: 1,
+    imageLink: "",
+  });
   const [giftList, setGiftList] = useState([]);
   const toast = useToast();
   const inputRef = useRef();
 
   const handleAddGiftClick = () => {
-    if (gift.length != 0) {
+    if (giftDetail.text.length != 0) {
       setGiftList((prevGiftList) => {
         return [
           ...prevGiftList,
           {
-            text: gift,
+            text: giftDetail.text,
             id: nanoid(),
+            quantity: giftDetail.quantity,
+            image: giftDetail.imageLink,
           },
         ];
       });
-      setGift("");
+      setGiftDetail({
+        text: "",
+        quantity: 1,
+        imageLink: "",
+      });
       toast({
         title: "Gift added",
         description: "We've added your gift to the list.",
@@ -47,7 +63,7 @@ export default function App() {
         isClosable: true,
       });
     } else {
-      if (gift.length === 0) {
+      if (giftDetail.length === 0) {
         toast({
           title: "Error: Empty gift.",
           description: "You need to write a gift before adding.",
@@ -66,26 +82,101 @@ export default function App() {
     });
   };
 
+  const handleChangeQuantity = (_textNumber, newQuantity, id) => {
+    setGiftList((prevGiftList) => {
+      return prevGiftList.map((item) => {
+        if (item.id != id) {
+          return item;
+        } else {
+          return { ...item, quantity: newQuantity };
+        }
+      });
+    });
+  };
+
   return (
-    <Flex h="100vh" backgroundColor="#f8f4ff" align="center" justify="center">
-      <Flex direction="column" backgroundColor="#2e2e2e" p={5}>
+    <Container h="full" backgroundColor="#2e2e2e">
+      <Flex
+        direction="column"
+        backgroundColor="#2e2e2e"
+        p={5}
+        justify="center"
+        h="full"
+      >
         <Heading textColor="#f8f4ff" mb={7} textAlign="center">
           Santa List
         </Heading>
         <Divider mb={3} />
-        <Input
-          _placeholder={{ textColor: "#f8f4ff" }}
-          color="f8f4ff"
-          onChange={(e) => setGift(e.target.value)}
-          placeholder="Type your gift"
-          value={gift}
-          ref={inputRef}
-          mb={3}
-          textColor="white"
-        ></Input>
-        <Button textColor="#2e2e2e" mb={3} onClick={() => handleAddGiftClick()}>
-          Add Gift
-        </Button>
+        <VStack mb={4}>
+          <FormControl isRequired>
+            <FormLabel htmlFor="gift-text">Gift:</FormLabel>
+            <Input
+              _placeholder={{ textColor: "#f8f4ff" }}
+              color="f8f4ff"
+              onChange={(e) =>
+                setGiftDetail((prevGiftDetail) => ({
+                  ...prevGiftDetail,
+                  text: e.target.value,
+                }))
+              }
+              placeholder="Type your gift"
+              value={giftDetail.text}
+              ref={inputRef}
+              mb={3}
+              textColor="white"
+              id="gift-text"
+            ></Input>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="gift-quantity">Quantity:</FormLabel>
+            <NumberInput
+              w="full"
+              id="gift-quantity"
+              mb={3}
+              min={1}
+              defaultValue={1}
+              onChange={(_textNumber, number) =>
+                setGiftDetail((prevGiftDetail) => ({
+                  ...prevGiftDetail,
+                  quantity: number,
+                }))
+              }
+              value={giftDetail.quantity}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <FormLabel htmlFor="gift-image">Image:</FormLabel>
+            <HStack mb={3}>
+              <Input
+                _placeholder={{ textColor: "#f8f4ff" }}
+                color="f8f4ff"
+                onChange={(e) =>
+                  setGiftDetail((prevGiftDetail) => ({
+                    ...prevGiftDetail,
+                    imageLink: e.target.value,
+                  }))
+                }
+                placeholder="http://image..."
+                value={giftDetail.imageLink}
+                textColor="white"
+                id="gift-image"
+              ></Input>
+              <Image
+                boxSize="40px"
+                src={giftDetail.imageLink || imgLogo}
+                alt="Gift"
+              />
+            </HStack>
+          </FormControl>
+
+          <Button onClick={handleAddGiftClick} w="full">
+            Add Gift
+          </Button>
+        </VStack>
         <Divider mb={3} />
         {giftList.length === 0 ? (
           <Text textColor="#f8f4ff" mb={3}>
@@ -95,7 +186,7 @@ export default function App() {
           <UnorderedList>
             {giftList.map((gift) => {
               return (
-                <Flex
+                <HStack
                   align="center"
                   mb={3}
                   key={gift.id}
@@ -107,8 +198,13 @@ export default function App() {
                       w="20%"
                       color="white"
                       _placeholder={{ textColor: "white" }}
-                      defaultValue={0}
-                      min={0}
+                      defaultValue={gift.quantity}
+                      min={1}
+                      allowMouseWheel
+                      onChange={(textNumber, number) =>
+                        handleChangeQuantity(textNumber, number, gift.id)
+                      }
+                      value={gift.quantity}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -116,17 +212,23 @@ export default function App() {
                         <NumberDecrementStepper />
                       </NumberInputStepper>
                     </NumberInput>
+                    <Image
+                      boxSize="40px"
+                      src={gift.image || imgLogo}
+                      alt="Gift"
+                      ml={3}
+                    />
                     <Button ml={3} onClick={() => handleDeleteClick(gift.id)}>
                       X
                     </Button>
                   </Flex>
-                </Flex>
+                </HStack>
               );
             })}
           </UnorderedList>
         )}
         <Divider mb={3} />
       </Flex>
-    </Flex>
+    </Container>
   );
 }
