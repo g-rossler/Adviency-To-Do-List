@@ -19,13 +19,21 @@ import {
   VStack,
   FormControl,
   FormLabel,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import React, { useState, useRef, useEffect } from "react";
 import { nanoid } from "nanoid";
 import imgLogo from "../src/image/heroicons-camera-basic.svg";
 
-// - Día 10: Las palabras dicen mucho pero las imágenes más!
-// Agreguemos un campo donde podamos pegar un link de imágen para cada regalo y mostremoslo en la lista.
+// - Día 11: Nuestro formulario tiene muchas cosas y molesta a la vista de los usuarios,
+// pasemoslo a un modal / drawer o lo que quieras y pongamos un botón de "Agregar regalo" que lo muestre.
 
 export default function App() {
   const [giftDetail, setGiftDetail] = useState({
@@ -33,13 +41,16 @@ export default function App() {
     quantity: 1,
     imageLink: "",
   });
-  const [giftList, setGiftList] = useState(JSON.parse(localStorage.getItem('list')) || []);
+  const [giftList, setGiftList] = useState(
+    JSON.parse(localStorage.getItem("list")) || []
+  );
   const toast = useToast();
   const inputRef = useRef();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    localStorage.setItem('list', JSON.stringify(giftList))
-  }, [giftList])
+    localStorage.setItem("list", JSON.stringify(giftList));
+  }, [giftList]);
 
   const handleAddGiftClick = () => {
     if (giftDetail.text.length != 0) {
@@ -66,6 +77,7 @@ export default function App() {
         duration: 3000,
         isClosable: true,
       });
+      onClose()
     } else {
       if (giftDetail.length === 0) {
         toast({
@@ -99,7 +111,12 @@ export default function App() {
   };
 
   return (
-    <Container h="full" backgroundColor="#2e2e2e">
+    <Container
+      border="3px solid white"
+      h="full"
+      backgroundColor="#2e2e2e"
+      mt={5}
+    >
       <Flex
         direction="column"
         backgroundColor="#2e2e2e"
@@ -112,74 +129,92 @@ export default function App() {
         </Heading>
         <Divider mb={3} />
         <VStack mb={4}>
-          <FormControl isRequired>
-            <FormLabel htmlFor="gift-text">Gift:</FormLabel>
-            <Input
-              _placeholder={{ textColor: "#f8f4ff" }}
-              color="f8f4ff"
-              onChange={(e) =>
-                setGiftDetail((prevGiftDetail) => ({
-                  ...prevGiftDetail,
-                  text: e.target.value,
-                }))
-              }
-              placeholder="Type your gift"
-              value={giftDetail.text}
-              ref={inputRef}
-              mb={3}
-              textColor="white"
-              id="gift-text"
-            ></Input>
-          </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="gift-quantity">Quantity:</FormLabel>
-            <NumberInput
-              w="full"
-              id="gift-quantity"
-              mb={3}
-              min={1}
-              defaultValue={1}
-              onChange={(_textNumber, number) =>
-                setGiftDetail((prevGiftDetail) => ({
-                  ...prevGiftDetail,
-                  quantity: number,
-                }))
-              }
-              value={giftDetail.quantity}
-            >
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-            <FormLabel htmlFor="gift-image">Image:</FormLabel>
-            <HStack mb={3}>
-              <Input
-                _placeholder={{ textColor: "#f8f4ff" }}
-                color="f8f4ff"
-                onChange={(e) =>
-                  setGiftDetail((prevGiftDetail) => ({
-                    ...prevGiftDetail,
-                    imageLink: e.target.value,
-                  }))
-                }
-                placeholder="http://image..."
-                value={giftDetail.imageLink}
-                textColor="white"
-                id="gift-image"
-              ></Input>
-              <Image
-                boxSize="40px"
-                src={giftDetail.imageLink || imgLogo}
-                alt="Gift"
-              />
-            </HStack>
-          </FormControl>
-
-          <Button onClick={handleAddGiftClick} w="full">
+          <Button onClick={onOpen} w="full">
             Add Gift
           </Button>
+
+          <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Add your gift</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                <FormControl isRequired>
+                  <FormLabel htmlFor="gift-text">Gift:</FormLabel>
+                  <Input
+                    _placeholder={{ textColor: "#f8f4ff" }}
+                    color="f8f4ff"
+                    onChange={(e) =>
+                      setGiftDetail((prevGiftDetail) => ({
+                        ...prevGiftDetail,
+                        text: e.target.value,
+                      }))
+                    }
+                    placeholder="Type your gift"
+                    value={giftDetail.text}
+                    ref={inputRef}
+                    mb={3}
+                    textColor="white"
+                    id="gift-text"
+                  ></Input>
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="gift-quantity">Quantity:</FormLabel>
+                  <NumberInput
+                    w="full"
+                    id="gift-quantity"
+                    mb={3}
+                    min={1}
+                    defaultValue={1}
+                    onChange={(_textNumber, number) =>
+                      setGiftDetail((prevGiftDetail) => ({
+                        ...prevGiftDetail,
+                        quantity: number,
+                      }))
+                    }
+                    value={giftDetail.quantity}
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <FormLabel htmlFor="gift-image">Image:</FormLabel>
+                  <HStack mb={3}>
+                    <Input
+                      _placeholder={{ textColor: "#f8f4ff" }}
+                      color="f8f4ff"
+                      onChange={(e) =>
+                        setGiftDetail((prevGiftDetail) => ({
+                          ...prevGiftDetail,
+                          imageLink: e.target.value,
+                        }))
+                      }
+                      placeholder="http://example-link-image..."
+                      value={giftDetail.imageLink}
+                      textColor="white"
+                      id="gift-image"
+                    ></Input>
+                    <Image
+                      boxSize="40px"
+                      src={giftDetail.imageLink || imgLogo}
+                      alt="Gift"
+                    />
+                  </HStack>
+                </FormControl>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button colorScheme="blue" mr={3} onClick={handleAddGiftClick}>
+                  Add Gift
+                </Button>
+                <Button colorScheme="red" onClick={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </VStack>
         <Divider mb={3} />
         {giftList.length === 0 ? (
