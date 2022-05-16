@@ -24,8 +24,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { nanoid } from "nanoid";
 import imgLogo from "../src/image/heroicons-camera-basic.svg";
 
-// - Día 10: Las palabras dicen mucho pero las imágenes más!
-// Agreguemos un campo donde podamos pegar un link de imágen para cada regalo y mostremoslo en la lista.
+// - Día 11: Nuestro formulario tiene muchas cosas y molesta a la vista de los usuarios, 
+// pasemoslo a un modal / drawer o lo que quieras y pongamos un botón de "Agregar regalo" que lo muestre.
+
 
 export default function App() {
   const [giftDetail, setGiftDetail] = useState({
