@@ -20,7 +20,7 @@ import {
   FormControl,
   FormLabel,
 } from "@chakra-ui/react";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { nanoid } from "nanoid";
 import imgLogo from "../src/image/heroicons-camera-basic.svg";
 
@@ -33,9 +33,13 @@ export default function App() {
     quantity: 1,
     imageLink: "",
   });
-  const [giftList, setGiftList] = useState([]);
+  const [giftList, setGiftList] = useState(JSON.parse(localStorage.getItem('list')) || []);
   const toast = useToast();
   const inputRef = useRef();
+
+  useEffect(() => {
+    localStorage.setItem('list', JSON.stringify(giftList))
+  }, [giftList])
 
   const handleAddGiftClick = () => {
     if (giftDetail.text.length != 0) {
