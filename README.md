@@ -1,5 +1,62 @@
 # Adviency
 
+DEMO: https://advencychallenge.netlify.app/
+
+Este challenge fue creado por Goncy (https://github.com/goncy), la idea es hacer una app que es una lista de regalo 24 veces, desde 0, y cada dia agregarle una funcionalidad nueva. Si queres ver los objetivos de cada dia los dejo al final de este README.
+
+### Tecnologías Usadas
+
+Las tecnologías y herramientas que se utilice para este proyecto son:
+
+- React
+- Chakra UI
+- Netlify
+
+#
+
+## Instalación
+
+Este proyecto utiliza distintas dependencias que deben ser instaladas, por lo que vas a necesitar tener NPM instalado y correr este código en la consola.
+
+```
+npm install
+```
+
+Esto te permitirá descargar las dependencias que se necesitan para utilizar correctamente la aplicacion.
+
+Luego, se debera ingresar en la consola:
+
+```
+npm run start
+```
+Luego, ir al navegador a la direccion:
+```
+http://localhost:3000/
+```
+
+#
+
+## Soporte
+
+Si encontrás un error, no dudes en contactarme:
+
+- Rossler Gerardo (https://github.com/g-rossler)
+#
+
+## Contribuciones
+
+Son aceptados cambios o mejoras.
+
+#
+
+## Autor
+
+- Rossler Gerardo (https://www.linkedin.com/in/gerardo-rossler/)
+
+#
+
+# Adviency
+
 🔔 Recordá que la idea es empezar la app de 0 cada día, no editar la del día anterior, si no te dan los tiempos o te parece mucho, editá la anterior, mejor poco que nada! 🔔
 
 - Día 1: Para calentar motores vamos a mantener las cosas simples, mostremos una lista de regalos, 3 elementos, fijos, sin nada más.
