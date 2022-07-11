@@ -31,15 +31,17 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import { nanoid } from "nanoid";
 import imgLogo from "../src/image/heroicons-camera-basic.svg";
+import Gift from "./components/Gift.js";
 
-// - Día 11: Nuestro formulario tiene muchas cosas y molesta a la vista de los usuarios,
-// pasemoslo a un modal / drawer o lo que quieras y pongamos un botón de "Agregar regalo" que lo muestre.
+// - Día 12: La gente no recuerda que regalo corresponde a cada quien,
+// agreguemos un campo para destinatario y mostremoslo.
 
 export default function App() {
   const [giftDetail, setGiftDetail] = useState({
     text: "",
     quantity: 1,
     imageLink: "",
+    receiver: "",
   });
   const [giftList, setGiftList] = useState(
     JSON.parse(localStorage.getItem("list")) || []
@@ -53,43 +55,64 @@ export default function App() {
   }, [giftList]);
 
   const handleAddGiftClick = () => {
-    if (giftDetail.text.length != 0) {
-      setGiftList((prevGiftList) => {
-        return [
-          ...prevGiftList,
-          {
-            text: giftDetail.text,
-            id: nanoid(),
-            quantity: giftDetail.quantity,
-            image: giftDetail.imageLink,
-          },
-        ];
+    setGiftList((prevGiftList) => {
+      return [
+        ...prevGiftList,
+        {
+          text: giftDetail.text,
+          id: nanoid(),
+          quantity: giftDetail.quantity,
+          imageLink: giftDetail.imageLink,
+          receiver: giftDetail.receiver,
+        },
+      ];
+    });
+    setGiftDetail({
+      text: "",
+      quantity: 1,
+      imageLink: "",
+      receiver: "",
+    });
+    toast({
+      title: "Gift added",
+      description: "We've added your gift to the list.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+    onClose();
+  };
+
+  const handleChangeGiftData = (e) => {
+    const { name, value } = e.target;
+
+    setGiftDetail((prevGiftDetail) => {
+      return {
+        ...prevGiftDetail,
+        [name]: value,
+      };
+    });
+  };
+
+  const handleChangeQuantityItem = (e) => {
+    setGiftDetail((prevGiftDetail) => {
+      return {
+        ...prevGiftDetail,
+        quantity: e,
+      };
+    });
+  }
+
+  const handleChangeData = (id, newGiftData) => {
+    setGiftList((prevGiftList) => {
+      return prevGiftList.map((gift) => {
+        if (gift.id != id) {
+          return gift;
+        } else {
+          return newGiftData;
+        }
       });
-      setGiftDetail({
-        text: "",
-        quantity: 1,
-        imageLink: "",
-      });
-      toast({
-        title: "Gift added",
-        description: "We've added your gift to the list.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-      onClose()
-    } else {
-      if (giftDetail.length === 0) {
-        toast({
-          title: "Error: Empty gift.",
-          description: "You need to write a gift before adding.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-      inputRef.current.focus();
-    }
+    });
   };
 
   const handleDeleteClick = (itemId) => {
@@ -98,26 +121,17 @@ export default function App() {
     });
   };
 
-  const handleChangeQuantity = (_textNumber, newQuantity, id) => {
-    setGiftList((prevGiftList) => {
-      return prevGiftList.map((item) => {
-        if (item.id != id) {
-          return item;
-        } else {
-          return { ...item, quantity: newQuantity };
-        }
-      });
-    });
-  };
-
   return (
     <Container
       border="3px solid white"
-      h="full"
-      backgroundColor="#2e2e2e"
-      mt={5}
+      minH="70vh"
+      backgroundColor="white"
+      w="xl"
+      p={0}
+      my={5}
     >
       <Flex
+        minH="70vh"
         direction="column"
         backgroundColor="#2e2e2e"
         p={5}
@@ -136,7 +150,7 @@ export default function App() {
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Add your gift</ModalHeader>
+              <ModalHeader textAlign="center">Add your gift</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
                 <FormControl isRequired>
@@ -144,18 +158,28 @@ export default function App() {
                   <Input
                     _placeholder={{ textColor: "#f8f4ff" }}
                     color="f8f4ff"
-                    onChange={(e) =>
-                      setGiftDetail((prevGiftDetail) => ({
-                        ...prevGiftDetail,
-                        text: e.target.value,
-                      }))
-                    }
+                    onChange={(e) => handleChangeGiftData(e)}
                     placeholder="Type your gift"
                     value={giftDetail.text}
                     ref={inputRef}
                     mb={3}
                     textColor="white"
                     id="gift-text"
+                    name='text'
+                  ></Input>
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel htmlFor="gift-receiver">Receiver:</FormLabel>
+                  <Input
+                    _placeholder={{ textColor: "#f8f4ff" }}
+                    color="f8f4ff"
+                    onChange={(e) => handleChangeGiftData(e)}
+                    placeholder="Type the receiver"
+                    value={giftDetail.receiver}
+                    mb={3}
+                    textColor="white"
+                    id="gift-receiver"
+                    name='receiver'
                   ></Input>
                 </FormControl>
                 <FormControl>
@@ -166,13 +190,9 @@ export default function App() {
                     mb={3}
                     min={1}
                     defaultValue={1}
-                    onChange={(_textNumber, number) =>
-                      setGiftDetail((prevGiftDetail) => ({
-                        ...prevGiftDetail,
-                        quantity: number,
-                      }))
-                    }
+                    onChange={(e) => handleChangeQuantityItem(e)}
                     value={giftDetail.quantity}
+                    name='quantity'
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -185,21 +205,17 @@ export default function App() {
                     <Input
                       _placeholder={{ textColor: "#f8f4ff" }}
                       color="f8f4ff"
-                      onChange={(e) =>
-                        setGiftDetail((prevGiftDetail) => ({
-                          ...prevGiftDetail,
-                          imageLink: e.target.value,
-                        }))
-                      }
-                      placeholder="http://example-link-image..."
+                      onChange={(e) => handleChangeGiftData(e)}
+                      placeholder="https://example-link-image..."
                       value={giftDetail.imageLink}
                       textColor="white"
                       id="gift-image"
+                      name='imageLink'
                     ></Input>
                     <Image
                       boxSize="40px"
                       src={giftDetail.imageLink || imgLogo}
-                      alt="Gift"
+                      alt="Gift image"
                     />
                   </HStack>
                 </FormControl>
@@ -225,43 +241,16 @@ export default function App() {
           <UnorderedList>
             {giftList.map((gift) => {
               return (
-                <HStack
-                  align="center"
-                  mb={3}
-                  key={gift.id}
-                  justify="space-between"
-                >
-                  <ListItem textColor="#f8f4ff">{gift.text}</ListItem>
-                  <Flex justify="right">
-                    <NumberInput
-                      w="20%"
-                      color="white"
-                      _placeholder={{ textColor: "white" }}
-                      defaultValue={gift.quantity}
-                      min={1}
-                      allowMouseWheel
-                      onChange={(textNumber, number) =>
-                        handleChangeQuantity(textNumber, number, gift.id)
-                      }
-                      value={gift.quantity}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    <Image
-                      boxSize="40px"
-                      src={gift.image || imgLogo}
-                      alt="Gift"
-                      ml={3}
-                    />
-                    <Button ml={3} onClick={() => handleDeleteClick(gift.id)}>
-                      X
-                    </Button>
-                  </Flex>
-                </HStack>
+                <Gift
+                  id={gift.id}
+                  text={gift.text}
+                  quantity={gift.quantity}
+                  imageLink={gift.imageLink}
+                  receiver={gift.receiver}
+                  key={nanoid()}
+                  handleDelete={() => handleDeleteClick(gift.id)}
+                  handleChangeData={handleChangeData}
+                />
               );
             })}
           </UnorderedList>
