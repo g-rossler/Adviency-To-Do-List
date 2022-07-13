@@ -14,6 +14,12 @@ Las tecnologías y herramientas que se utilice para este proyecto son:
 
 #
 
+## Screenshot
+
+<img  src="https://github.com/g-rossler/Adviency-To-Do-List/blob/main/src/image/screenshot_main.png?raw=true" align="center" alt="Pagina de inicio del to do list">
+<sup>Pagina de inicio del to do list</sup>
+<br/><br/>
+
 ## Instalación
 
 Este proyecto utiliza distintas dependencias que deben ser instaladas, por lo que vas a necesitar tener NPM instalado y correr este código en la consola.
